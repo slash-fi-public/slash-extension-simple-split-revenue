@@ -13,7 +13,7 @@ import "../libs/UniversalERC20.sol";
 contract SplitPlugin is OwnableUpgradeable {
     using UniversalERC20 for IERC20Upgradeable;
 
-    uint8 public constant MAX_SPLITS = 12;
+    uint8 public constant MAX_SPLITS = 10;
     uint16 public constant RATE_PRECISION = 10000;
 
     address private _merchantWallet;
