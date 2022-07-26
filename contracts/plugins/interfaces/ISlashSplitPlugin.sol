@@ -8,7 +8,7 @@ interface ISlashSplitPlugin is ISlashCustomPlugin {
     /**
      * @dev Contract upgradeable initializer
      */
-    function initialize(address merchantOwner, address merchantContract)
+    function initialize(address operator)
         external;
 
     /**

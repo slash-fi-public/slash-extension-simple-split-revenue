@@ -24,8 +24,7 @@ contract NftSplitPlugin is OwnableUpgradeable {
     uint8 public constant MAX_SPLITS = 10;
     uint16 public constant RATE_PRECISION = 10000;
 
-    address private _merchantWallet;
-    address private _merchantContract;
+    address private _operator;
     address private _batchContract;
 
     // NFT info array for the split
@@ -42,20 +41,18 @@ contract NftSplitPlugin is OwnableUpgradeable {
      * @notice Initialize plugin
      */
     function initialize(
-        address merchantWallet_,
-        address merchantContract_,
+        address operator_,
         address batchContract_
     ) public initializer {
         __Ownable_init();
 
-        _merchantWallet = merchantWallet_;
-        _merchantContract = merchantContract_;
+        _operator = operator_;
         _batchContract = batchContract_;
     }
 
     /**
      * @notice Update NFT info list
-     * @dev Only merchant can update NFT info list
+     * @dev Only operator can update NFT info list
      */
     function updateNftInfoList(
         uint256[] memory chainIds_,
@@ -63,7 +60,7 @@ contract NftSplitPlugin is OwnableUpgradeable {
         address[] memory nftAddresses_,
         uint16[] memory splitRates_
     ) external {
-        require(_msgSender() == _merchantWallet, "Unpermitted");
+        require(_msgSender() == _operator, "Unpermitted");
         require(chainIds_.length == tokenIds_.length, "Length different");
         require(chainIds_.length == nftAddresses_.length, "Length different");
         require(chainIds_.length == splitRates_.length, "Length different");
@@ -110,29 +107,29 @@ contract NftSplitPlugin is OwnableUpgradeable {
     }
 
     /**
-     * @notice Update merchant wallet
-     * @dev Slash owner or merchant owner can update merchant wallet
+     * @notice Update plugin operator
+     * @dev Slash owner operator can run this function
      */
-    function updateMerchantWallet(address merchantWallet_) external {
+    function updateOperator(address operator_) external {
         require(
-            _msgSender() == owner() || _msgSender() == _merchantWallet,
+            _msgSender() == owner() || _msgSender() == _operator,
             "Unpermitted"
         );
 
-        _merchantWallet = merchantWallet_;
+        _operator = operator_;
     }
 
-    function viewMerchantWallet() external view returns (address) {
-        return _merchantWallet;
+    function viewOperator() external view returns (address) {
+        return _operator;
     }
 
     /**
-     * @notice Update merchant wallet
-     * @dev Slash owner or merchant owner can update merchant wallet
+     * @notice Update batch contract
+     * @dev Slash owner or operator can run this function
      */
     function updateBatchContract(address batchContract_) external {
         require(
-            _msgSender() == owner() || _msgSender() == _merchantWallet,
+            _msgSender() == owner() || _msgSender() == _operator,
             "Unpermitted"
         );
         _batchContract = batchContract_;
@@ -143,27 +140,11 @@ contract NftSplitPlugin is OwnableUpgradeable {
     }
 
     /**
-     * @notice Change merchant contract. This is only for displaying purpose.
-     * Allocating merchant contract and plugin contract should be done in the merchant contract
-     * @dev Only slash owner can change the merchant contract
-     */
-    function updateMerchantContract(address merchantContract_)
-        external
-        onlyOwner
-    {
-        _merchantContract = merchantContract_;
-    }
-
-    function viewMerchantContract() external view returns (address) {
-        return _merchantContract;
-    }
-
-    /**
      * @notice View split wallets and rates
      */
     function viewNftInfos() external view returns (NftInfo[] memory) {
         require(
-            _msgSender() == _merchantWallet || _msgSender() == _batchContract,
+            _msgSender() == _operator || _msgSender() == _batchContract,
             "Unpermitted"
         );
         return _splitNfts;

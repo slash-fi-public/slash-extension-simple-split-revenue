@@ -8,8 +8,7 @@ interface ISlashNftSplitPlugin is ISlashCustomPlugin {
     /**
      * @dev Contract upgradeable initializer
      */
-    function initialize(address merchantOwner, address merchantContract, address batchContract)
-        external;
+    function initialize(address operator, address batchContract) external;
 
     /**
      * @dev part of Ownable

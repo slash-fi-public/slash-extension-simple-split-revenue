@@ -16,8 +16,7 @@ contract SplitPlugin is OwnableUpgradeable {
     uint8 public constant MAX_SPLITS = 10;
     uint16 public constant RATE_PRECISION = 10000;
 
-    address private _merchantWallet;
-    address private _merchantContract;
+    address private _operator;
     // Array of wallet to receive payment
     address[] private _splitWallets;
     // Rates for the split wallets
@@ -32,7 +31,7 @@ contract SplitPlugin is OwnableUpgradeable {
 
     modifier validatePermission() {
         require(
-            owner() == _msgSender() || _merchantWallet == _msgSender(),
+            owner() == _msgSender() || _operator == _msgSender(),
             "Unpermitted"
         );
         _;
@@ -41,14 +40,13 @@ contract SplitPlugin is OwnableUpgradeable {
     /**
      * @notice Initialize plugin
      */
-    function initialize(address merchantWallet_, address merchantContract_)
+    function initialize(address operator_)
         public
         initializer
     {
         __Ownable_init();
 
-        _merchantWallet = merchantWallet_;
-        _merchantContract = merchantContract_;
+        _operator = operator_;
     }
 
     /**
@@ -79,36 +77,20 @@ contract SplitPlugin is OwnableUpgradeable {
     }
 
     /**
-     * @notice Update merchant wallet
-     * @dev Slash owner or merchant owner can update merchant wallet
+     * @notice Update plugin operator
+     * @dev Plugin owner or operator can call this function
      */
-    function updateMerchantWallet(address merchantWallet_)
+    function updateOperator(address operator_)
         external
         validatePermission
     {
-        require(merchantWallet_ != address(0), "Invalid merchant wallet");
+        require(operator_ != address(0), "Invalid address");
 
-        _merchantWallet = merchantWallet_;
+        _operator = operator_;
     }
 
-    function viewMerchantWallet() external view returns (address) {
-        return _merchantWallet;
-    }
-
-    /**
-     * @notice Change merchant contract. This is only for displaying purpose.
-     * Allocating merchant contract and plugin contract should be done in the merchant contract
-     * @dev Only slash owner can change the merchant contract
-     */
-    function updateMerchantContract(address merchantContract_)
-        external
-        onlyOwner
-    {
-        _merchantContract = merchantContract_;
-    }
-
-    function viewMerchantContract() external view returns (address) {
-        return _merchantContract;
+    function viewOperator() external view returns (address) {
+        return _operator;
     }
 
     /**

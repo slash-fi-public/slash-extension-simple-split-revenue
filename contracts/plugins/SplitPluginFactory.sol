@@ -7,6 +7,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/ClonesUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/structs/EnumerableSetUpgradeable.sol";
 
 import "./interfaces/ISlashSplitPlugin.sol";
+import "./interfaces/ISlashNftSplitPlugin.sol";
 import "../interfaces/IMerchantProperty.sol";
 import "../libs/UniversalERC20.sol";
 
@@ -16,28 +17,31 @@ import "../libs/UniversalERC20.sol";
  */
 contract SplitPluginFactory is OwnableUpgradeable {
     using UniversalERC20 for IERC20Upgradeable;
-    using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
 
     address private _sharedOwner; // Shared owner over the Split plugins created from this factory
-    address private _pluginImpl;
-
-    EnumerableSetUpgradeable.AddressSet private _plugins; // Plugins created
-    mapping(address => address) private _merchants2Plugins; // Mapping merchant => plugin
+    address private _splitPluginImpl;
+    address private _nftSplitPluginImpl;
+    address private _batchContract;
 
     event NewSplitPluginCreated(
         address indexed account,
-        address indexed merchant,
+        address indexed plugin
+    );
+    event NewNftSplitPluginCreated(
+        address indexed account,
         address indexed plugin
     );
 
-    function initialize(address sharedOwner_, address pluginImpl_)
-        public
-        initializer
-    {
+    function initialize(
+        address sharedOwner_,
+        address splitPluginImpl_,
+        address nftSplitPluginImpl_
+    ) public initializer {
         __Ownable_init();
 
         _sharedOwner = sharedOwner_;
-        _pluginImpl = pluginImpl_;
+        _splitPluginImpl = splitPluginImpl_;
+        _nftSplitPluginImpl = nftSplitPluginImpl_;
     }
 
     /**
@@ -59,86 +63,80 @@ contract SplitPluginFactory is OwnableUpgradeable {
     }
 
     /**
-     * @notice Update plugin implementation
+     * @notice Update shared owner
+     * @param contract_ new batch contract address
+     * @dev Only onwer can call this function
+     */
+    function updateBatchContract(address contract_) external onlyOwner {
+        require(contract_ != address(0), "Invalid address");
+        _batchContract = contract_;
+    }
+
+    /**
+     * @notice View current batch contract address
+     */
+    function viewBatchContract() external view returns (address) {
+        return _batchContract;
+    }
+
+    /**
+     * @notice Update split plugin implementation
      * @dev Only owner can call this function
      */
-    function updatePluginImpl(address pluginImpl_) external onlyOwner {
+    function updateSplitPluginImpl(address pluginImpl_) external onlyOwner {
         require(pluginImpl_ != address(0), "Invalid address");
-        require(_pluginImpl != pluginImpl_, "Already set");
-        _pluginImpl = pluginImpl_;
+        _splitPluginImpl = pluginImpl_;
     }
 
     /**
-     * @notice View current plugin implementation
+     * @notice View current split plugin implementation
      */
-    function viewPluginImpl() external view returns (address) {
-        return _pluginImpl;
+    function viewSplitPluginImpl() external view returns (address) {
+        return _splitPluginImpl;
     }
 
     /**
-     * @notice View plugin deployed for the merchant contract
+     * @notice Update nft split plugin implementation
+     * @dev Only owner can call this function
      */
-    function viewPlugin(address merchant_) external view returns (address) {
-        return _merchants2Plugins[merchant_];
+    function updateNftSplitPluginImpl(address pluginImpl_) external onlyOwner {
+        require(pluginImpl_ != address(0), "Invalid address");
+        _nftSplitPluginImpl = pluginImpl_;
     }
 
     /**
-     * @notice Total deployed plugins count
+     * @notice View current nft split plugin implementation
      */
-    function totalPluginCount() external view returns (uint256) {
-        return _plugins.length();
-    }
-
-    /**
-     * @notice View deployed plugins (paginated)
-     */
-    function viewPlugins(uint256 offset, uint256 count)
-        external
-        view
-        returns (address[] memory)
-    {
-        uint256 pluginsCount = _plugins.length();
-        if (offset < pluginsCount && count > 0) {
-            count = offset + count > pluginsCount
-                ? pluginsCount - offset
-                : count;
-            address[] memory plugins = new address[](count);
-            for (uint256 i = 0; i < count; i++) {
-                plugins[i] = _plugins.at(i);
-            }
-            return plugins;
-        }
-        return new address[](0);
+    function viewNftSplitPluginImpl() external view returns (address) {
+        return _nftSplitPluginImpl;
     }
 
     /**
      * @notice Deploy Split plugin
-     * @param merchantContract_ Merchant contract address
-     * @dev Any merchants can deploy plugin for their merchant contract
      */
-    function deployPlugin(
-        address merchantContract_,
+    function deploySplitPlugin(
         address[] memory splitWallets_,
         uint16[] memory splitRates_
     ) external {
-        address merchantWallet = IMerchantProperty(merchantContract_)
-            .viewMerchantWallet();
-        // Only Slash owner or merchant owner can deploy split plugin
-        require(
-            merchantWallet == _msgSender() || _sharedOwner == _msgSender(),
-            "Unallowed operation"
-        );
-
-        address deployed = ClonesUpgradeable.clone(_pluginImpl);
+        address deployed = ClonesUpgradeable.clone(_splitPluginImpl);
         ISlashSplitPlugin splitPlugin = ISlashSplitPlugin(deployed);
-        splitPlugin.initialize(merchantWallet, merchantContract_);
+        splitPlugin.initialize(_msgSender());
         splitPlugin.configureSplitsData(splitWallets_, splitRates_);
-        splitPlugin.transferOwnership(_sharedOwner);
+        splitPlugin.transferOwnership(_sharedOwner); // Shared owner will have all ownership of plugins
 
-        _plugins.add(deployed);
-        _merchants2Plugins[merchantContract_] = deployed;
+        emit NewSplitPluginCreated(_msgSender(), deployed);
+    }
 
-        emit NewSplitPluginCreated(merchantWallet, merchantContract_, deployed);
+    /**
+     * @notice Deploy Nft Split plugin
+     */
+    function deployNftSplitPlugin() external {
+        address deployed = ClonesUpgradeable.clone(_nftSplitPluginImpl);
+        ISlashNftSplitPlugin nftSplitPlugin = ISlashNftSplitPlugin(deployed);
+        nftSplitPlugin.initialize(_msgSender(), _batchContract);
+        nftSplitPlugin.transferOwnership(_sharedOwner); // Shared owner will have all ownership of plugins
+
+        emit NewNftSplitPluginCreated(_msgSender(), deployed);
     }
 
     /**
