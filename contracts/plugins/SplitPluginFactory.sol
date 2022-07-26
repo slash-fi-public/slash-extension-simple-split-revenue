@@ -133,7 +133,7 @@ contract SplitPluginFactory is OwnableUpgradeable {
     function deployNftSplitPlugin() external {
         address deployed = ClonesUpgradeable.clone(_nftSplitPluginImpl);
         ISlashNftSplitPlugin nftSplitPlugin = ISlashNftSplitPlugin(deployed);
-        nftSplitPlugin.initialize(_msgSender(), _batchContract);
+        nftSplitPlugin.initialize(_msgSender());
         nftSplitPlugin.transferOwnership(_sharedOwner); // Shared owner will have all ownership of plugins
 
         emit NewNftSplitPluginCreated(_msgSender(), deployed);

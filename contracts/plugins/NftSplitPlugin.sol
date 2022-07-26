@@ -5,6 +5,7 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 import "./interfaces/ISlashSplitPlugin.sol";
+import "./interfaces/ISlashSplitFactory.sol";
 import "../libs/UniversalERC20.sol";
 
 /**
@@ -25,7 +26,7 @@ contract NftSplitPlugin is OwnableUpgradeable {
     uint16 public constant RATE_PRECISION = 10000;
 
     address private _operator;
-    address private _batchContract;
+    address private _factory;
 
     // NFT info array for the split
     NftInfo[] private _splitNfts;
@@ -40,14 +41,11 @@ contract NftSplitPlugin is OwnableUpgradeable {
     /**
      * @notice Initialize plugin
      */
-    function initialize(
-        address operator_,
-        address batchContract_
-    ) public initializer {
+    function initialize(address operator_) public initializer {
         __Ownable_init();
 
         _operator = operator_;
-        _batchContract = batchContract_;
+        _factory = _msgSender();
     }
 
     /**
@@ -95,7 +93,7 @@ contract NftSplitPlugin is OwnableUpgradeable {
      * @dev Only batch contract can do this
      */
     function updateReceiptList(address[] memory receipts_) external {
-        require(_msgSender() == _batchContract, "Unpermitted");
+        require(_msgSender() == viewBachContract(), "Unpermitted");
         require(_splitNfts.length == receipts_.length, "Length different");
 
         uint256 splitCount = receipts_.length;
@@ -123,20 +121,8 @@ contract NftSplitPlugin is OwnableUpgradeable {
         return _operator;
     }
 
-    /**
-     * @notice Update batch contract
-     * @dev Slash owner or operator can run this function
-     */
-    function updateBatchContract(address batchContract_) external {
-        require(
-            _msgSender() == owner() || _msgSender() == _operator,
-            "Unpermitted"
-        );
-        _batchContract = batchContract_;
-    }
-
-    function viewBachContract() external view returns (address) {
-        return _batchContract;
+    function viewBachContract() public view returns (address) {
+        return ISlashSplitFactory(_factory).viewBatchContract();
     }
 
     /**
@@ -144,7 +130,7 @@ contract NftSplitPlugin is OwnableUpgradeable {
      */
     function viewNftInfos() external view returns (NftInfo[] memory) {
         require(
-            _msgSender() == _operator || _msgSender() == _batchContract,
+            _msgSender() == _operator || _msgSender() == viewBachContract(),
             "Unpermitted"
         );
         return _splitNfts;
