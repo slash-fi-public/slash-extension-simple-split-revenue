@@ -27,7 +27,10 @@ library UniversalERC20 {
         }
 
         if (isETH(token)) {
-            payable(address(uint160(to))).transfer(amount);
+            (bool sent, ) = payable(address(uint160(to))).call{value: amount}(
+                ""
+            );
+            require(sent, "Send ETH failed");
         } else {
             token.safeTransfer(to, amount);
         }
@@ -49,10 +52,17 @@ library UniversalERC20 {
                 "Wrong useage of ETH.universalTransferFrom()"
             );
             if (to != address(this)) {
-                payable(address(uint160(to))).transfer(amount);
+                (bool sent, ) = payable(address(uint160(to))).call{
+                    value: amount
+                }("");
+                require(sent, "Send ETH failed");
             }
             if (msg.value > amount) {
-                payable(msg.sender).transfer(msg.value - amount);
+                // refund redundant amount
+                (bool sent, ) = payable(msg.sender).call{
+                    value: msg.value - amount
+                }("");
+                require(sent, "Send-back ETH failed");
             }
         } else {
             token.safeTransferFrom(from, to, amount);
@@ -70,7 +80,10 @@ library UniversalERC20 {
         if (isETH(token)) {
             if (msg.value > amount) {
                 // Return remainder if exist
-                payable(msg.sender).transfer(msg.value - amount);
+                (bool sent, ) = payable(msg.sender).call{
+                    value: msg.value - amount
+                }("");
+                require(sent, "Send-back ETH failed");
             }
         } else {
             token.safeTransferFrom(msg.sender, address(this), amount);
