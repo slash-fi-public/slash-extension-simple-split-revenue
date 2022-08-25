@@ -173,7 +173,18 @@ contract NftSplitPlugin is OwnableUpgradeable {
         require(totalRates == RATE_PRECISION, "Invalid split configuration");
     }
 
-    //to recieve ETH
+    /**
+     * @dev Check if the contract is Slash Plugin
+     *
+     * Requirement
+     * - Implement this function in the contract
+     * - Return true
+     */
+    function supportSlashExtensionInterface() external pure returns (bool) {
+        return true;
+    }
+
+    // to recieve ETH
     receive() external payable {}
 
     /**

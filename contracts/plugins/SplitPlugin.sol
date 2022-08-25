@@ -40,10 +40,7 @@ contract SplitPlugin is OwnableUpgradeable {
     /**
      * @notice Initialize plugin
      */
-    function initialize(address operator_)
-        public
-        initializer
-    {
+    function initialize(address operator_) public initializer {
         __Ownable_init();
 
         _operator = operator_;
@@ -80,10 +77,7 @@ contract SplitPlugin is OwnableUpgradeable {
      * @notice Update plugin operator
      * @dev Plugin owner or operator can call this function
      */
-    function updateOperator(address operator_)
-        external
-        validatePermission
-    {
+    function updateOperator(address operator_) external validatePermission {
         require(operator_ != address(0), "Invalid address");
 
         _operator = operator_;
@@ -146,7 +140,18 @@ contract SplitPlugin is OwnableUpgradeable {
         require(totalRates == RATE_PRECISION, "Invalid split configuration");
     }
 
-    //to recieve ETH
+    /**
+     * @dev Check if the contract is Slash Plugin
+     *
+     * Requirement
+     * - Implement this function in the contract
+     * - Return true
+     */
+    function supportSlashExtensionInterface() external pure returns (bool) {
+        return true;
+    }
+
+    // to recieve ETH
     receive() external payable {}
 
     /**
