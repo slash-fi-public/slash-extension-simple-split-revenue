@@ -49,7 +49,7 @@ library UniversalERC20 {
         if (isETH(token)) {
             require(
                 from == msg.sender && msg.value >= amount,
-                "Wrong useage of ETH.universalTransferFrom()"
+                "Wrong usage of ETH.universalTransferFrom"
             );
             if (to != address(this)) {
                 (bool sent, ) = payable(address(uint160(to))).call{
@@ -78,6 +78,10 @@ library UniversalERC20 {
         }
 
         if (isETH(token)) {
+            require(
+                msg.value >= amount,
+                "Wrong usage of ETH.universalTransferFromSenderToThis"
+            );
             if (msg.value > amount) {
                 // Return remainder if exist
                 (bool sent, ) = payable(msg.sender).call{
