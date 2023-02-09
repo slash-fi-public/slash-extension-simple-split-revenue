@@ -1,0 +1,124 @@
+{
+  "manifestVersion": "3.2",
+  "admin": {
+    "address": "0x140358Dc8C8c8d76acD309c7db37aF3d47336590",
+    "txHash": "0x6004084ede305fba181c53e73d08808423f71f9e4bcc1e189bd9ed3cd6b037c7"
+  },
+  "proxies": [
+    {
+      "address": "0x302e983947E1D03Dd08048A1c5ef04364A01d1B3",
+      "txHash": "0x2da4afc2967bcf7e0253d22c5f3968c335fe6892de1fd9bea8a1bfee50c138f8",
+      "kind": "transparent"
+    }
+  ],
+  "impls": {
+    "6331c03c1b733e1eadab96ed1e54fefa8105f344754611fde652f21264c5ec16": {
+      "address": "0xf165Dc33660Cda56bbe4c15925f42F63A83d2355",
+      "txHash": "0xbd2e12600958cab41b9445e2d060edc02ae4666aeb848d3a1034e8f86ceb2d7d",
+      "layout": {
+        "solcVersion": "0.8.4",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:62",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:67"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:94"
+          },
+          {
+            "label": "_sharedOwner",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_address",
+            "contract": "SplitPluginFactory",
+            "src": "contracts\\v2\\plugins\\SplitPluginFactory.sol:20"
+          },
+          {
+            "label": "_splitPluginImpl",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_address",
+            "contract": "SplitPluginFactory",
+            "src": "contracts\\v2\\plugins\\SplitPluginFactory.sol:21"
+          },
+          {
+            "label": "_nftSplitPluginImpl",
+            "offset": 0,
+            "slot": "103",
+            "type": "t_address",
+            "contract": "SplitPluginFactory",
+            "src": "contracts\\v2\\plugins\\SplitPluginFactory.sol:22"
+          },
+          {
+            "label": "_batchContract",
+            "offset": 0,
+            "slot": "104",
+            "type": "t_address",
+            "contract": "SplitPluginFactory",
+            "src": "contracts\\v2\\plugins\\SplitPluginFactory.sol:23"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
+    }
+  }
+}

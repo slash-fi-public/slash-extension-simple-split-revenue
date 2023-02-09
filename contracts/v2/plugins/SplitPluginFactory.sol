@@ -1,4 +1,4 @@
-//SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.4;
 
@@ -8,7 +8,6 @@ import "@openzeppelin/contracts-upgradeable/utils/structs/EnumerableSetUpgradeab
 
 import "./interfaces/ISlashSplitPlugin.sol";
 import "./interfaces/ISlashNftSplitPlugin.sol";
-import "../interfaces/IMerchantProperty.sol";
 import "../libs/UniversalERC20.sol";
 
 /**
@@ -32,6 +31,8 @@ contract SplitPluginFactory is OwnableUpgradeable {
         address indexed plugin
     );
 
+    error InvalidZeroAddress();
+
     function initialize(
         address sharedOwner_,
         address splitPluginImpl_,
@@ -50,8 +51,7 @@ contract SplitPluginFactory is OwnableUpgradeable {
      * @dev Only onwer can call this function
      */
     function updateSharedOwner(address sharedOwner_) external onlyOwner {
-        require(sharedOwner_ != address(0), "Invalid address");
-        require(_sharedOwner != sharedOwner_, "Already set");
+        if (sharedOwner_ == address(0)) revert InvalidZeroAddress();
         _sharedOwner = sharedOwner_;
     }
 
@@ -68,7 +68,7 @@ contract SplitPluginFactory is OwnableUpgradeable {
      * @dev Only onwer can call this function
      */
     function updateBatchContract(address contract_) external onlyOwner {
-        require(contract_ != address(0), "Invalid address");
+        if (contract_ == address(0)) revert InvalidZeroAddress();
         _batchContract = contract_;
     }
 
@@ -84,7 +84,7 @@ contract SplitPluginFactory is OwnableUpgradeable {
      * @dev Only owner can call this function
      */
     function updateSplitPluginImpl(address pluginImpl_) external onlyOwner {
-        require(pluginImpl_ != address(0), "Invalid address");
+        if (pluginImpl_ == address(0)) revert InvalidZeroAddress();
         _splitPluginImpl = pluginImpl_;
     }
 
@@ -100,7 +100,7 @@ contract SplitPluginFactory is OwnableUpgradeable {
      * @dev Only owner can call this function
      */
     function updateNftSplitPluginImpl(address pluginImpl_) external onlyOwner {
-        require(pluginImpl_ != address(0), "Invalid address");
+        if (pluginImpl_ == address(0)) revert InvalidZeroAddress();
         _nftSplitPluginImpl = pluginImpl_;
     }
 
