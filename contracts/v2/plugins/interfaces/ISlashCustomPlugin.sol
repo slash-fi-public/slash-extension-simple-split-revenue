@@ -14,7 +14,7 @@ interface ISlashCustomPlugin {
     function receivePayment(
         address receiveToken,
         uint256 amount,
-        string calldata paymentId,
+        bytes calldata paymentId,
         string calldata optional,
         bytes calldata reserved
     ) external payable;
